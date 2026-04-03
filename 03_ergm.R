@@ -28,6 +28,8 @@ build_ergm_network <- function(Y, A) {
   net %v% "edu"    <- s$Y_sub$edu
   net %v% "spouse" <- s$Y_sub$spouse
   net %v% "D"      <- s$Y_sub$D
+  net %v% "Job"      <- s$Y_sub$Job
+  net %v% "Group"      <- s$Y_sub$Group
   net %v% "deg"    <- s$Y_sub$deg.out
   cat(sprintf("Network: %d nodes, %d edges\n",
               network.size(net), network.edgecount(net)))
@@ -91,6 +93,8 @@ fit_ergm_direct <- function(Y, A, N = 11, seed = 1232) {
       nodecov("edu")    +
       nodecov("spouse") +
       nodecov("D")      +
+      nodecov("Job") +
+      nodecov("Group")      +
       edgecov(Con * S_mat)  +
       edgecov(Con * LS_mat) +
       nodecov("deg")    +
