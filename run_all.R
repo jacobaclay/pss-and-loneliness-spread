@@ -14,12 +14,12 @@ dat <- load_data(CONFIG)
 
 # 2. Network stats & clustering
 Deg <- get_network_stat(dat$G7, "degree")
-AA  <- expand_matrix(dat$YL, dat$A7)
-clu <- reg.SSP(AA, K = CONFIG$n_clusters,
+G0  <- expand_matrix(dat$YL, dat$G0)
+clu <- reg.SSP(G0, K = CONFIG$n_clusters,
                nstart = CONFIG$nstart, tau = CONFIG$tau)
 YL_clu <- dat$YL %>%
   dplyr::left_join(
-    data.frame(idr = as.numeric(colnames(AA)), Clus = clu$cluster),
+    data.frame(idr = as.numeric(colnames(G0)), Clus = clu$cluster),
     by = "idr")
 
 # 3. Outcome
@@ -30,7 +30,7 @@ Y <- YL_clu %>%
     y9      = as.integer(L9 > 1),
     deg.out = ifelse(is.na(deg.out), 0, deg.out),
     Job     = as.integer(G512 == 1)) %>%
-  dplyr::left_join(dat$X_Group, by = "idr")
+  dplyr::left_join(dat$X, by = "idr")
 Y$Group[is.na(Y$Group)] <- 0
 Y$Job[is.na(Y$Job)]     <- 0
 
@@ -73,7 +73,7 @@ dev.off()
 # 8. ERGM
 if (isTRUE(CONFIG$run_ergm)) {
   cat("\nFitting ERGM...\n")
-  ergm_results <- run_ergm_analysis(Y, dat$A7)
+  ergm_results <- run_ergm_analysis(Y, dat$G0)
 }
 
 cat("\nDone.\n")
