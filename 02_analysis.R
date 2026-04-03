@@ -7,21 +7,21 @@ library(dplyr)
 load_data <- function(cfg) {
   e <- new.env()
   
-  load(file.path(cfg$data_dir, "X_BS.RData"),    envir = e)
-  X_Group <- e$X %>% dplyr::select(idr, Group)
+  load(file.path(cfg$data_dir, "X.RData"),    envir = e)
+  X <- e$X %>% dplyr::select(idr, Group)
   
   load(file.path(cfg$data_dir, "y_7_9.RData"),    envir = e)
   e$y_7_9$L7[is.nan(e$y_7_9$L7)] <- NA
   e$y_7_9$L9[is.nan(e$y_7_9$L9)] <- NA
   
-  load(file.path(cfg$data_dir, "A7.RData"),        envir = e)
+  load(file.path(cfg$data_dir, "G0.RData"),        envir = e)
   
   mutu <- intersect(colnames(e$G0), e$X$idr)
   Y_mu <- e$X %>% dplyr::filter(idr %in% as.numeric(mutu))
   YL   <- e$X %>% dplyr::left_join(e$y_7_9, by = "idr")
   G7   <- e$G0[as.character(Y_mu$idr), as.character(Y_mu$idr)]
   
-  list(YL = YL, G0 = e$G0, G7 = G7, X_Group = X_Group, Y_mu = Y_mu)
+  list(YL = YL, G0 = e$G0, G7 = G7, X=X)
 }
 
 # Inverse-probability weighting for social support ## 
@@ -95,9 +95,6 @@ fit_separated <- function(Y, N, mnei_deg, deg_nl, mnei_lonely,
     dplyr::left_join(deg_nl,      by = "idr") %>%
     dplyr::rename(deg = count)
   
-  Z$deg[is.na(Z$deg)]                         <- 0
-  Z$neighbor_lonely[is.na(Z$neighbor_lonely)]  <- 0
-  Z$neighbor_deg[is.na(Z$neighbor_deg)]        <- 0
   Z$deg <- (Z$deg + 1)^K - 1
   
   # --- IPW ---
@@ -141,11 +138,10 @@ fit_allcontacts <- function(Y, N, mnei_deg,
       Support = as.integer((B.love + B.listen + B.support) > N)
     ) %>%
     dplyr::filter(!is.na(y), y7 == 0) %>%
-    dplyr::select(idr, AGE, SEX, edu, spouse, D.nurse, B.listen, B.love,
+    dplyr::select(idr, AGE, SEX, edu, spouse, B.listen, B.love,
                   Group, Job, deg, Support, D, y7, y, Clus) %>%
     dplyr::filter(!is.na(Support)) %>%
-    dplyr::left_join(mnei_deg, by = "idr") %>%
-    dplyr::mutate(DD = (D + D.nurse) > 0)
+    dplyr::left_join(mnei_deg, by = "idr") 
   
   Z$neighbor_deg[is.na(Z$neighbor_deg)] <- 0
   
@@ -155,7 +151,7 @@ fit_allcontacts <- function(Y, N, mnei_deg,
   
   # --- Outcome model ---
   if (use_lmer) {
-    fixed <- c("AGE", "I(AGE^2)", "SEX", "edu", "spouse", "DD",
+    fixed <- c("AGE", "I(AGE^2)", "SEX", "edu", "spouse", "D",
                "Group", "Job", "neighbor_deg",
                "deg * Support", "(1|Clus)")
     fml <- as.formula(paste("y ~", paste(fixed, collapse = " + ")))
