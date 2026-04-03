@@ -12,24 +12,10 @@ get_network_stat <- function(A, stat = "degree") {
     data.frame(idr = ids, deg.in = colSums(A), deg.out = rowSums(A))
     
   } else if (stat == "constraint") {
-    G <- graph_from_adjacency_matrix(A)
-    data.frame(idr = ids,
-               Constraint = calculate_constraint_binary_corrected(G))
-    
-  } else if (stat == "constraint_auto") {
+
     G <- graph_from_adjacency_matrix(A)
     data.frame(idr = ids, Constraint = igraph::constraint(G))
-    
-  } else if (stat == "assortativity") {
-    g   <- graph_from_adjacency_matrix(A)
-    deg <- rowSums(A)
-    sim <- sapply(V(g), function(v) {
-      nb <- neighbors(g, v)
-      if (length(nb) == 0) return(NA)
-      1 / (1 + abs(deg[v] - mean(deg[nb])))
-    })
-    data.frame(idr = ids, degree = deg, assortativity = sim)
-    
+ 
   } else if (stat == "transitivity") {
     G <- graph_from_adjacency_matrix(A)
     data.frame(idr = ids,
@@ -80,7 +66,7 @@ find_mutual_ties <- function(Y, Net, lonely = TRUE) {
 }
 
 # ---------------------------------------------------------------------------
-# Average neighbour degree (power-transformed)
+# Average neighbor degree (power-transformed)
 # ---------------------------------------------------------------------------
 find_avg_neighbor_degree <- function(Y, Net, K = 0.5) {
   Yf <- Y %>%
