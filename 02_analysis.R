@@ -10,22 +10,18 @@ load_data <- function(cfg) {
   load(file.path(cfg$data_dir, "X_BS.RData"),    envir = e)
   X_Group <- e$X %>% dplyr::select(idr, Group)
   
-  load(file.path(cfg$data_dir, "X_Employ.RData"), envir = e)
-  e$X$edu[is.na(e$X$edu)]       <- 0
-  e$X$spouse[is.na(e$X$spouse)] <- 0
-  
   load(file.path(cfg$data_dir, "y_7_9.RData"),    envir = e)
   e$y_7_9$L7[is.nan(e$y_7_9$L7)] <- NA
   e$y_7_9$L9[is.nan(e$y_7_9$L9)] <- NA
   
   load(file.path(cfg$data_dir, "A7.RData"),        envir = e)
   
-  mutu <- intersect(colnames(e$A7), e$X$idr)
+  mutu <- intersect(colnames(e$G0), e$X$idr)
   Y_mu <- e$X %>% dplyr::filter(idr %in% as.numeric(mutu))
   YL   <- e$X %>% dplyr::left_join(e$y_7_9, by = "idr")
-  G7   <- e$A7[as.character(Y_mu$idr), as.character(Y_mu$idr)]
+  G7   <- e$G0[as.character(Y_mu$idr), as.character(Y_mu$idr)]
   
-  list(YL = YL, A7 = e$A7, G7 = G7, X_Group = X_Group, Y_mu = Y_mu)
+  list(YL = YL, G0 = e$G0, G7 = G7, X_Group = X_Group, Y_mu = Y_mu)
 }
 
 # Inverse-probability weighting for social support ## 
