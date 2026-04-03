@@ -31,10 +31,8 @@ Y <- YL_clu %>%
     deg.out = ifelse(is.na(deg.out), 0, deg.out),
     Job     = as.integer(G512 == 1)) %>%
   dplyr::left_join(dat$X, by = "idr")
-Y$Group[is.na(Y$Group)] <- 0
-Y$Job[is.na(Y$Job)]     <- 0
 
-# 4. Neighbour predictors
+# 4. Neighbor predictors
 mnei_lonely <- find_mutual_ties(Y, dat$G7, lonely = TRUE)
 mnei_deg    <- find_avg_neighbor_degree(Y, dat$G7, K = CONFIG$K)
 deg_nl      <- find_mutual_ties(Y, dat$G7, lonely = FALSE)
