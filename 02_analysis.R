@@ -31,10 +31,10 @@ weight_support <- function(Z, use_lmer = FALSE, all = FALSE) {
   if (use_lmer) {
     # ---- GLMER branch (random intercept for cluster) ----
     covs <- if (all) {
-      c("AGE", "SEX", "edu", "spouse", "DD", "Group", "Job",
+      c("AGE", "SEX", "edu", "spouse", "D", "Group", "Job",
         "neighbor_deg", "deg", "(1|Clus)")
     } else {
-      c("AGE", "SEX", "edu", "spouse", "DD", "Job",
+      c("AGE", "SEX", "edu", "spouse", "D", "Job",
         "deg", "neighbor_lonely", "(1|Clus)")
     }
     fml <- as.formula(paste("Support ~", paste(covs, collapse = " + ")))
@@ -44,10 +44,10 @@ weight_support <- function(Z, use_lmer = FALSE, all = FALSE) {
   } else {
     # ---- GLM branch (no random effects) ----
     covs <- if (all) {
-      c("AGE", "SEX", "edu", "spouse", "DD", "Group", "Job",
+      c("AGE", "SEX", "edu", "spouse", "D", "Group", "Job",
         "neighbor_deg", "deg")
     } else {
-      c("AGE", "SEX", "edu", "spouse", "DD", "Group", "Job",
+      c("AGE", "SEX", "edu", "spouse", "D", "Group", "Job",
         "deg", "neighbor_lonely")
     }
     fml <- as.formula(paste("Support ~", paste(covs, collapse = " + ")))
@@ -103,7 +103,7 @@ fit_separated <- function(Y, N, mnei_deg, deg_nl, mnei_lonely,
   
   # --- Outcome model ---
   fixed <- c("AGE", "I(AGE^2)", "SEX", "edu", "spouse",
-             "D", "D.nurse", "neighbor_deg", "Group", "Job",
+             "D",  "neighbor_deg", "Group", "Job",
              "neighbor_lonely * Support", "deg * Support")
   
   if (use_lmer) {
